@@ -1,23 +1,96 @@
+import 'dart:developer';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:custom_path_maker/2D%20Gerometry%20Functions/functions%20to%20fill%20CurvePoints%20data/get_enums_to_fill_curvePointsList_from_map_data.dart';
+import 'package:custom_path_maker/2D%20Gerometry%20Functions/math/getRectBoundaryPointsFromGivenPoints.dart';
 import 'package:custom_path_maker/constants/consts.dart';
 import 'package:custom_path_maker/constants/global.dart';
+import 'package:custom_path_maker/constants/matrix.dart';
+import 'package:custom_path_maker/enum/enums.dart';
 import 'package:custom_path_maker/functions/checkIfIndexPresentInList.dart';
+import 'package:custom_path_maker/models/PathModel.dart';
 import 'package:flutter/material.dart';
 
+ui.Shader? getShader(
+    GradientType gradientType, PathModel pathModel, Size s, Box box) {
+  switch (gradientType) {
+    case GradientType.color:
+      return null;
+    case GradientType.linear:
+      // ui.Offset from = ui.Offset(box.center.dx - box.width * 0.5 + 50,
+      //     box.center.dy - box.height * 0.5 + 50);
+      // ui.Offset to = ui.Offset(box.center.dx + box.width * 0.5 - 150,
+      //     box.center.dy + box.height * 0.5 + 50);
+
+      return ui.Gradient.linear(
+        pathModel.linearFrom,
+        pathModel.linearTo,
+        [
+          ...pathModel.colorStopModels
+              .map((e) => Color(int.parse("0x${e.hexColorString}")))
+        ],
+        [...pathModel.colorStopModels.map((e) => e.colorStop)],
+
+        // [Colors.red, Colors.amber],
+        // [0.2, 0.6],
+        pathModel.tileMode,
+      );
+    case GradientType.radial:
+      return ui.Gradient.radial(
+          // box.center, s.width * 0.5,
+          pathModel.center,
+          pathModel.rad,
+          [
+            ...pathModel.colorStopModels
+                .map((e) => Color(int.parse("0x${e.hexColorString}")))
+          ],
+          [...pathModel.colorStopModels.map((e) => e.colorStop)],
+          pathModel.tileMode,
+          // Float64List.
+          idenityFloat64List(),
+          pathModel.focalCenter,
+          pathModel.focalRad);
+    case GradientType.sweep:
+      return ui.Gradient.sweep(
+        pathModel.center,
+        [
+          ...pathModel.colorStopModels
+              .map((e) => Color(int.parse("0x${e.hexColorString}")))
+        ],
+        [...pathModel.colorStopModels.map((e) => e.colorStop)],
+        pathModel.tileMode,
+        pathModel.startSweepAngle,
+        pathModel.endSweepAngle,
+      );
+    default:
+      log("default shader radd");
+      return ui.Gradient.linear(Offset.zero, ui.Offset(s.width, s.height), [
+        Colors.red, Colors.yellow,
+
+        // )
+      ]);
+  }
+}
+
 class PointPainter extends CustomPainter {
+  Box box;
+  PathModel pathModel;
+  PointPainter(this.box, {required this.pathModel});
+
   @override
   void paint(Canvas canvas, Size s) {
+    // log("sele tilemode in paint ${pathModels[pathModelIndex].tileMode}/  ${pathModel.tileMode}");
+
+    // log("boxdata ${box.width} / ${box.height} / ${h * 0.6} / ${box.center}");
+    // log("radd ${pathModel.rad}");
+    Shader? shader = getShader(pathModel.gradientType, pathModel, s, box);
+
     Paint paint = Paint()
       ..strokeWidth = 3
-      // ..color = Colors.red
-      ..shader = ui.Gradient.linear(
-        Offset.zero,
-        Offset(s.width, s.height),
-        [Colors.red, Colors.amber],
-      )
-      ..style = strokePath ? PaintingStyle.stroke : PaintingStyle.fill;
+      ..shader = shader
+      ..color = ui.Color(int.parse("0xff${pathModel.hexColorString}"))
+      ..style = pathModel.stroke ? PaintingStyle.stroke : PaintingStyle.fill;
     Path path = Path();
     if (points.length < 2) {
       return;
@@ -27,7 +100,7 @@ class PointPainter extends CustomPainter {
       if (i == 1) {
         // && points[0].arcTypeOnPoint != ArcTypeOnPoint.arc
         path.moveTo(points.first.point.dx, points.first.point.dy);
-        if (!strokePath) {
+        if (!pathModel.stroke) {
           path.moveTo(points[i - 1].postArcEndPoint.dx,
               points[i - 1].postArcEndPoint.dy);
         }
@@ -82,15 +155,15 @@ class PointPainter extends CustomPainter {
 
         // i++;
         // path.lineTo(nextPoint, y)
-        canvas.drawPoints(
-            ui.PointMode.points,
-            [preArcEnd, postArcEnd],
-            Paint()
-              ..color = Colors.amber
-              ..strokeWidth = 6);
+        // canvas.drawPoints(
+        //     ui.PointMode.points,
+        //     [preArcEnd, postArcEnd],
+        //     Paint()
+        //       ..color = Colors.amber
+        //       ..strokeWidth = 6);
       }
     }
-    if (!open) {
+    if (!pathModel.open) {
       Offset pLast = points[0].point;
       Offset preLast = points[0].prePoint;
       Offset preArcEnd = points[0].preArcEndPoint;
@@ -124,15 +197,15 @@ class PointPainter extends CustomPainter {
         path.arcToPoint(postArcEnd,
             radius: Radius.circular(points[0].arcRadius),
             clockwise: points[0].isArcClockwise);
-        canvas.drawPoints(
-            ui.PointMode.points,
-            [preArcEnd, postArcEnd],
-            Paint()
-              ..color = Colors.amber
-              ..strokeWidth = 6);
+        // canvas.drawPoints(
+        //     ui.PointMode.points,
+        //     [preArcEnd, postArcEnd],
+        //     Paint()
+        //       ..color = Colors.amber
+        //       ..strokeWidth = 6);
       }
 
-      if (!strokePath) {
+      if (!pathModel.stroke) {
         path.close();
       }
     }

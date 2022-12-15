@@ -7,7 +7,7 @@ import 'package:custom_path_maker/functions/getAndUpdateArcEndPointsOnArcSelecte
 import 'package:flutter/material.dart';
 
 updatePrePostPointForSymmetry(bool isPre, int k) {
-  log("isPre $isPre / $k /  ${points[k].prePoint} /${points[k].postPoint} / ${points[k].arcTypeOnPoint}");
+  // log("isPre $isPre / $k /  ${points[k].prePoint} /${points[k].postPoint} / ${points[k].arcTypeOnPoint}");
   if (points[k].arcTypeOnPoint == ArcTypeOnPoint.symmetric) {
     if (isPre) {
       points[k].postPoint =

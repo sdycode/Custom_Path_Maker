@@ -5,6 +5,8 @@ const double topbarH = 30;
 const double bottombarH = 30;
 double leftSideW = w - editOptionW;
 double mainScreenH = h - topbarH - bottombarH;
-bool open = true;
+// bool open = true;
 String painterClassName = "MyFirstPainter";
-bool strokePath = true;
+// bool strokePath = true;
+
+bool isGradient = false;

@@ -4,6 +4,7 @@ import 'package:custom_path_maker/constants/consts.dart';
 import 'package:custom_path_maker/constants/global.dart';
 import 'package:custom_path_maker/constants/icons_images_paths.dart';
 import 'package:custom_path_maker/functions/checkIfIndexPresentInList.dart';
+import 'package:custom_path_maker/functions/setCubicBezeirToQuadIfNextIsNormal.dart';
 import 'package:custom_path_maker/functions/updatePrePostBothPointsForPoint.dart';
 import 'package:custom_path_maker/functions/updatePrePostCurveTypeBasedOnArcTypeOnPoint.dart';
 import 'package:custom_path_maker/providers/path_screen_provider.dart';
@@ -49,7 +50,7 @@ class CurveIconsInRowWidget extends StatelessWidget {
                       color: (checkIfIndexPresentInList(points, selectedPoint))
                           ? points[selectedPoint].arcTypeOnPoint ==
                                   ArcTypeOnPoint.values[i]
-                              ?curveiconBoxActiveColor
+                              ? curveiconBoxActiveColor
                               : curveiconBoxInActiveColor
                           : curveiconBoxInActiveColor,
                       borderRadius: BorderRadius.circular(4),
@@ -62,11 +63,10 @@ class CurveIconsInRowWidget extends StatelessWidget {
                           : null,
                       boxShadow:
                           (checkIfIndexPresentInList(points, selectedPoint))
-                              ?  points[selectedPoint].arcTypeOnPoint ==
-                                  ArcTypeOnPoint.values[i]
-                              ?const [BoxShadow(
-                                offset: Offset(0.2,0.2)
-                              )] :null
+                              ? points[selectedPoint].arcTypeOnPoint ==
+                                      ArcTypeOnPoint.values[i]
+                                  ? const [BoxShadow(offset: Offset(0.2, 0.2))]
+                                  : null
                               : null),
                   child: Image.asset(
                     curvePointIcons[i],

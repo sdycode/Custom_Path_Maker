@@ -1,9 +1,9 @@
+
+
 import 'package:flutter/foundation.dart';
 
-class PathScreenProvider with ChangeNotifier {
-  updateUI() {
+class EditOptionProvider with ChangeNotifier{
+   updateUI() {
     notifyListeners();
   }
-
-  
 }

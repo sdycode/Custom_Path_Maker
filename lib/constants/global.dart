@@ -1,9 +1,8 @@
-
-
 import 'package:custom_path_maker/models/PathModel.dart';
 import 'package:custom_path_maker/models/curve_point.dart';
 
 import 'package:flutter/material.dart';
+
 
 int selectedPoint = -1;
 double rad = 0.5;
