@@ -9,6 +9,7 @@ void reInitiaiseGlobalFields(BuildContext context) {
   h = MediaQuery.of(context).size.height;
   leftSideW = w - editOptionW;
   mainScreenH = h - topbarH - bottombarH;
+   mainScreenW = w - editOptionW;
 }
 
 void reInitiaiseGlobalFieldsOfGradientSection(BuildContext context) {

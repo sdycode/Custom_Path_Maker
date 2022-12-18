@@ -54,11 +54,31 @@ ui.Shader? getShader(
     case GradientType.sweep:
       return ui.Gradient.sweep(
         pathModel.center,
-        [
-          ...pathModel.colorStopModels
-              .map((e) => Color(int.parse("0x${e.hexColorString}")))
-        ],
-        [...pathModel.colorStopModels.map((e) => e.colorStop)],
+        pathModel.continuousSweep
+            ? [
+                ...pathModel.colorStopModels
+                    .map((e) => Color(int.parse("0x${e.hexColorString}"))),
+                Color(int.parse(
+                    "0x${pathModel.colorStopModels.first.hexColorString}"))
+              ]
+            : [
+                ...pathModel.colorStopModels
+                    .map((e) => Color(int.parse("0x${e.hexColorString}")))
+              ],
+        pathModel.continuousSweep
+            ? [
+                0.0,
+                ...pathModel.colorStopModels
+                    .sublist(1, pathModel.colorStopModels.length - 1)
+                    .map((e) {
+                  return e.colorStop;
+                }),
+                pathModel.colorStopModels.last.colorStop,
+                1.0
+
+                // ...pathModel.colorStopModels.map((e) => e.colorStop),1.0
+              ]
+            : [...pathModel.colorStopModels.map((e) => e.colorStop)],
         pathModel.tileMode,
         pathModel.startSweepAngle,
         pathModel.endSweepAngle,
@@ -74,12 +94,14 @@ ui.Shader? getShader(
 }
 
 class PointPainter extends CustomPainter {
+  int pathNo;
   Box box;
   PathModel pathModel;
-  PointPainter(this.box, {required this.pathModel});
+  PointPainter(this.pathNo,this.box, {required this.pathModel});
 
   @override
   void paint(Canvas canvas, Size s) {
+    log("pathmodel no $pathNo plen ${pathModel.points.length}");
     // log("sele tilemode in paint ${pathModels[pathModelIndex].tileMode}/  ${pathModel.tileMode}");
 
     // log("boxdata ${box.width} / ${box.height} / ${h * 0.6} / ${box.center}");
@@ -92,66 +114,67 @@ class PointPainter extends CustomPainter {
       ..color = ui.Color(int.parse("0xff${pathModel.hexColorString}"))
       ..style = pathModel.stroke ? PaintingStyle.stroke : PaintingStyle.fill;
     Path path = Path();
-    if (points.length < 2) {
+    if (pathModel.points.length < 2) {
       return;
     }
 
-    for (var i = 1; i < points.length; i++) {
+    for (var i = 1; i < pathModel.points.length; i++) {
       if (i == 1) {
-        // && points[0].arcTypeOnPoint != ArcTypeOnPoint.arc
-        path.moveTo(points.first.point.dx, points.first.point.dy);
+        // &&pathModel.points[0].arcTypeOnPoint != ArcTypeOnPoint.arc
+        path.moveTo(
+            pathModel.points.first.point.dx, pathModel.points.first.point.dy);
         if (!pathModel.stroke) {
-          path.moveTo(points[i - 1].postArcEndPoint.dx,
-              points[i - 1].postArcEndPoint.dy);
+          path.moveTo(pathModel.points[i - 1].postArcEndPoint.dx,
+             pathModel.points[i - 1].postArcEndPoint.dy);
         }
       } else {}
-      if (points[i - 1].postPointCurveType == PostPointCurveType.arc) {
+      if (pathModel.points[i - 1].postPointCurveType == PostPointCurveType.arc) {
         // move to
         path.lineTo(
-            points[i - 1].postArcEndPoint.dx, points[i - 1].postArcEndPoint.dy);
+           pathModel.points[i - 1].postArcEndPoint.dx,pathModel.points[i - 1].postArcEndPoint.dy);
       } else {
         // move to
-        path.lineTo(points[i - 1].point.dx, points[i - 1].point.dy);
+        path.lineTo(pathModel.points[i - 1].point.dx,pathModel.points[i - 1].point.dy);
       }
-      int nextIndex = (i + 1) % points.length;
+      int nextIndex = (i + 1) % pathModel.points.length;
       int preIndex = i - 1;
-      Offset p = points[i].point;
-      Offset pre = points[i].prePoint;
-      Offset postPoint = points[i].postPoint;
-      Offset preArcEnd = points[i].preArcEndPoint;
-      Offset postArcEnd = points[i].postArcEndPoint;
-      Offset prePost = points[i - 1].postPoint;
-      Offset nextPoint = points[nextIndex].point;
+      Offset p = pathModel.points[i].point;
+      Offset pre = pathModel.points[i].prePoint;
+      Offset postPoint = pathModel.points[i].postPoint;
+      Offset preArcEnd = pathModel.points[i].preArcEndPoint;
+      Offset postArcEnd = pathModel.points[i].postArcEndPoint;
+      Offset prePost =pathModel.points[i - 1].postPoint;
+      Offset nextPoint =pathModel.points[nextIndex].point;
 
       // Check next of arc  point is cubic bezier ( and make pre point of next as quad from cubic)
 
-      if (points[i].arcTypeOnPoint == ArcTypeOnPoint.arc) {
-        if (points[nextIndex].prePointCurveType ==
+      if (pathModel.points[i].arcTypeOnPoint == ArcTypeOnPoint.arc) {
+        if (pathModel.points[nextIndex].prePointCurveType ==
             PrePointCurveType.cubicBezier) {
-          points[nextIndex].prePointCurveType = PrePointCurveType.quadBezier;
+         pathModel.points[nextIndex].prePointCurveType = PrePointCurveType.quadBezier;
         }
       }
 
-      if (points[i].prePointCurveType == PrePointCurveType.normal) {
+      if (pathModel.points[i].prePointCurveType == PrePointCurveType.normal) {
         path.lineTo(p.dx, p.dy);
-      } else if (points[i].prePointCurveType == PrePointCurveType.quadBezier) {
+      } else if (pathModel.points[i].prePointCurveType == PrePointCurveType.quadBezier) {
         path.quadraticBezierTo(pre.dx, pre.dy, p.dx, p.dy);
-        if (points[nextIndex].arcTypeOnPoint == ArcTypeOnPoint.normal) {
+        if (pathModel.points[nextIndex].arcTypeOnPoint == ArcTypeOnPoint.normal) {
           path.quadraticBezierTo(
               postPoint.dx, postPoint.dy, nextPoint.dx, nextPoint.dy);
           i++;
         }
-      } else if (points[i].prePointCurveType == PrePointCurveType.cubicBezier) {
+      } else if (pathModel.points[i].prePointCurveType == PrePointCurveType.cubicBezier) {
         path.cubicTo(prePost.dx, prePost.dy, pre.dx, pre.dy, p.dx, p.dy);
-      } else if (points[i].prePointCurveType == PrePointCurveType.arc) {
-        if (points[i - 1].postPointCurveType == PostPointCurveType.quadBezier) {
+      } else if (pathModel.points[i].prePointCurveType == PrePointCurveType.arc) {
+        if (pathModel.points[i - 1].postPointCurveType == PostPointCurveType.quadBezier) {
           path.quadraticBezierTo(
               prePost.dx, prePost.dy, preArcEnd.dx, preArcEnd.dy);
         }
         path.lineTo(preArcEnd.dx, preArcEnd.dy);
         path.arcToPoint(postArcEnd,
-            radius: Radius.circular(points[i].arcRadius),
-            clockwise: points[i].isArcClockwise);
+            radius: Radius.circular(pathModel.points[i].arcRadius),
+            clockwise: pathModel.points[i].isArcClockwise);
 
         // i++;
         // path.lineTo(nextPoint, y)
@@ -164,39 +187,39 @@ class PointPainter extends CustomPainter {
       }
     }
     if (!pathModel.open) {
-      Offset pLast = points[0].point;
-      Offset preLast = points[0].prePoint;
-      Offset preArcEnd = points[0].preArcEndPoint;
-      Offset postArcEnd = points[0].postArcEndPoint;
-      Offset prePostLast = points.last.postPoint;
+      Offset pLast =pathModel.points[0].point;
+      Offset preLast =pathModel.points[0].prePoint;
+      Offset preArcEnd =pathModel.points[0].preArcEndPoint;
+      Offset postArcEnd =pathModel.points[0].postArcEndPoint;
+      Offset prePostLast = pathModel.points.last.postPoint;
 
       int nextIndex = 1;
 
-      if (points[0].arcTypeOnPoint == ArcTypeOnPoint.arc) {
-        if (points[nextIndex].prePointCurveType ==
+      if (pathModel.points[0].arcTypeOnPoint == ArcTypeOnPoint.arc) {
+        if (pathModel.points[nextIndex].prePointCurveType ==
             PrePointCurveType.cubicBezier) {
-          points[nextIndex].prePointCurveType = PrePointCurveType.quadBezier;
+         pathModel.points[nextIndex].prePointCurveType = PrePointCurveType.quadBezier;
         }
       }
-      if (points[0].prePointCurveType == PrePointCurveType.normal) {
+      if (pathModel.points[0].prePointCurveType == PrePointCurveType.normal) {
         path.lineTo(pLast.dx, pLast.dy);
-      } else if (points[0].prePointCurveType == PrePointCurveType.quadBezier) {
+      } else if (pathModel.points[0].prePointCurveType == PrePointCurveType.quadBezier) {
         path.quadraticBezierTo(preLast.dx, preLast.dy, pLast.dx, pLast.dy);
-        if (points[1].arcTypeOnPoint == ArcTypeOnPoint.normal) {
-          Offset postPoint = points[0].postPoint;
-          Offset nextPoint = points[1].point;
+        if (pathModel.points[1].arcTypeOnPoint == ArcTypeOnPoint.normal) {
+          Offset postPoint =pathModel.points[0].postPoint;
+          Offset nextPoint =pathModel.points[1].point;
           path.quadraticBezierTo(
               postPoint.dx, postPoint.dy, nextPoint.dx, nextPoint.dy);
           // i++;
         }
-      } else if (points[0].prePointCurveType == PrePointCurveType.cubicBezier) {
+      } else if (pathModel.points[0].prePointCurveType == PrePointCurveType.cubicBezier) {
         path.cubicTo(prePostLast.dx, prePostLast.dy, preLast.dx, preLast.dy,
             pLast.dx, pLast.dy);
-      } else if (points[0].prePointCurveType == PrePointCurveType.arc) {
+      } else if (pathModel.points[0].prePointCurveType == PrePointCurveType.arc) {
         path.lineTo(preArcEnd.dx, preArcEnd.dy);
         path.arcToPoint(postArcEnd,
-            radius: Radius.circular(points[0].arcRadius),
-            clockwise: points[0].isArcClockwise);
+            radius: Radius.circular(pathModel.points[0].arcRadius),
+            clockwise:pathModel.points[0].isArcClockwise);
         // canvas.drawPoints(
         //     ui.PointMode.points,
         //     [preArcEnd, postArcEnd],
@@ -224,12 +247,12 @@ class PointPainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
 
     selectedPoints.forEach((k, v) {
-      if (checkIfIndexPresentInList(points, k)) {
-        preLinePath.moveTo(points[k].point.dx, points[k].point.dy);
-        preLinePath.lineTo(points[k].prePoint.dx, points[k].prePoint.dy);
+      if (checkIfIndexPresentInList(pathModel.points, k)) {
+        preLinePath.moveTo(pathModel.points[k].point.dx,pathModel.points[k].point.dy);
+        preLinePath.lineTo(pathModel.points[k].prePoint.dx,pathModel.points[k].prePoint.dy);
 
-        postLinePath.moveTo(points[k].point.dx, points[k].point.dy);
-        postLinePath.lineTo(points[k].postPoint.dx, points[k].postPoint.dy);
+        postLinePath.moveTo(pathModel.points[k].point.dx,pathModel.points[k].point.dy);
+        postLinePath.lineTo(pathModel.points[k].postPoint.dx,pathModel.points[k].postPoint.dy);
       }
       // preLinePath.moveTo(_p, y)
     });

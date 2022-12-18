@@ -1,6 +1,7 @@
 import 'package:custom_path_maker/constants/button_styles.dart';
 import 'package:custom_path_maker/constants/consts.dart';
 import 'package:custom_path_maker/constants/global.dart';
+import 'package:custom_path_maker/providers/edit_option_provider.dart';
 import 'package:custom_path_maker/providers/path_screen_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,7 +12,9 @@ class FillAndOpenButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     PathScreenProvider p = Provider.of<PathScreenProvider>(context);
-
+ EditOptionProvider editProvider = Provider.of<EditOptionProvider>(
+      context,
+    );
     return Container(
       width: editOptionW,
       margin: EdgeInsets.symmetric(vertical: 4),

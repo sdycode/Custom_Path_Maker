@@ -7,6 +7,7 @@ import 'package:custom_path_maker/functions/checkIfIndexPresentInList.dart';
 import 'package:custom_path_maker/functions/setCubicBezeirToQuadIfNextIsNormal.dart';
 import 'package:custom_path_maker/functions/updatePrePostBothPointsForPoint.dart';
 import 'package:custom_path_maker/functions/updatePrePostCurveTypeBasedOnArcTypeOnPoint.dart';
+import 'package:custom_path_maker/providers/edit_option_provider.dart';
 import 'package:custom_path_maker/providers/path_screen_provider.dart';
 import 'package:custom_path_maker/screens/path_drawing_screen.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,8 @@ class CurveIconsInRowWidget extends StatelessWidget {
       context,
     );
     double iconW = editOptionW * 0.2;
+    EditOptionProvider editProvider = Provider.of<EditOptionProvider>(context);
+
     return Container(
       width: editOptionW,
       height: iconW,
@@ -37,15 +40,17 @@ class CurveIconsInRowWidget extends StatelessWidget {
 
                   updatePrePostBothPointsForPoint(selectedPoint);
                   setCubicBezeirToQuadIfNextIsNormal(selectedPoint);
+                  showOrHidePrePostPoints(selectedPoint);
                   p.updateUI();
+                  editProvider.updateUI();
                 }
               },
               child: Container(
                 width: iconW,
                 height: iconW,
-                padding: EdgeInsets.all(8),
+                padding: EdgeInsets.all(4),
                 child: Container(
-                  padding: EdgeInsets.all(8),
+                  padding: EdgeInsets.all(6),
                   decoration: BoxDecoration(
                       color: (checkIfIndexPresentInList(points, selectedPoint))
                           ? points[selectedPoint].arcTypeOnPoint ==
@@ -77,5 +82,18 @@ class CurveIconsInRowWidget extends StatelessWidget {
             );
           }),
     );
+  }
+}
+
+void showOrHidePrePostPoints(int selectedPoint) {
+  if (points[selectedPoint].arcTypeOnPoint == ArcTypeOnPoint.arc || points[selectedPoint].arcTypeOnPoint == ArcTypeOnPoint.normal ) {
+    if (selectedPoints.containsKey(selectedPoint)) {
+      selectedPoints.remove(selectedPoint);
+    }
+  }
+  if (points[selectedPoint].arcTypeOnPoint == ArcTypeOnPoint.angleSymmetric ||
+      points[selectedPoint].arcTypeOnPoint == ArcTypeOnPoint.symmetric ||
+      points[selectedPoint].arcTypeOnPoint == ArcTypeOnPoint.nonSymmetric) {
+    selectedPoints.putIfAbsent(selectedPoint, () => selectedPoint);
   }
 }

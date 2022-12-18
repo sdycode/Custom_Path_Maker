@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:custom_path_maker/constants/consts.dart';
 import 'package:custom_path_maker/models/colorStopModel.dart';
 import 'package:custom_path_maker/providers/gradprovider.dart';
@@ -13,10 +15,10 @@ class GradientColorsListWidget extends StatelessWidget {
   final double bh = 40;
   @override
   Widget build(BuildContext context) {
-  GradProvider  gradProvider = Provider.of(context, listen: true);
+    GradProvider gradProvider = Provider.of(context, listen: true);
     return Container(
       constraints: BoxConstraints(
-        maxHeight: h * 0.4,
+        maxHeight:24+min(4,  gradProvider.colorStopModels.length)*h*0.055,
       ),
       margin: const EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -28,19 +30,30 @@ class GradientColorsListWidget extends StatelessWidget {
               spreadRadius: 0.6,
               blurRadius: 0.7)
         ],
-        color: const Color.fromARGB(255, 252, 254, 255),
+        color: Color.fromARGB(255, 44, 44, 44),
       ),
       width: editOptionW,
       // height: 0.5*colorListBoxH,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
-            "Colors",
-            style:  TextStyle(
-                color: Colors.black, fontSize: 25, fontWeight: FontWeight.bold),
+          Container(
+            height: 24,
+            // color: Colors.amber,
+            child: const Text(
+              "Colors",
+              style: TextStyle(
+                  color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+            ),
           ),
+           Divider(
+            indent: 50,
+            endIndent: 50,
+            height: 2,thickness: 2, color: Colors.grey.shade200,),
+    
           Expanded(
             child: ListView.builder(
+                shrinkWrap: true,
                 itemCount: gradProvider.colorStopModels.length,
                 itemBuilder: (c, i) {
                   double pad = editOptionW * 0.02;
@@ -53,6 +66,7 @@ class GradientColorsListWidget extends StatelessWidget {
                     width: editOptionW - 16,
                     height: bh,
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         InkWell(
@@ -74,9 +88,9 @@ class GradientColorsListWidget extends StatelessWidget {
                                     "0x${gradProvider.colorStopModels[i].hexColorString}")));
                           },
                           child: Container(
-                            height: bh - pad * 2,
+                            height: bh - pad * 2-6,
                             margin: EdgeInsets.all(editOptionW * 0.02),
-                            width: bh - pad * 2,
+                            width: bh - pad * 2-6,
                             decoration: BoxDecoration(
                                 border: Border.all(),
                                 borderRadius: BorderRadius.circular(6),
@@ -84,35 +98,60 @@ class GradientColorsListWidget extends StatelessWidget {
                           ),
                         ),
                         Container(
-                          decoration: BoxDecoration(
-                              // border: Border.all(),
-                              borderRadius: BorderRadius.circular(8)),
-                          height: bh - pad * 2,
-                          margin: EdgeInsets.all(editOptionW * 0.02),
-                          width: editOptionW * 0.8 - bh - pad * 2,
-                          child: Center(
-                            child: true
-                                ? TextField(
-                                    textAlign: TextAlign.center,
-                                    controller: controller,
-                                    decoration: const InputDecoration(
-                                      border: InputBorder.none,
-                                    ),
-                                    onSubmitted: (d) {
-                                      if (checkIsItValidHexString(d)) {
-                                        e.hexColorString = d;
-                                      } else {
-                                        controller.text = e.hexColorString;
-                                      }
-                                      gradProvider.updateUi();
-                                    },
-                                  )
-                                : SelectableText(
-                                    e.hexColorString,
-                                    style: TextStyle(fontSize: bh * 0.5),
-                                  ),
+                           height: bh - pad * 2,
+                        //   // margin: EdgeInsets.all(editOptionW * 0.02),
+                          width: editOptionW * 0.8 - bh - pad * 2-12,
+                          child: TextField(
+                            textAlign: TextAlign.center,
+                            controller: controller,
+                            decoration: const InputDecoration(
+                              contentPadding: EdgeInsets.only(bottom: 12),
+                              border: InputBorder.none,
+                            ),
+                            style: const TextStyle(color: Colors.white),
+                            onSubmitted: (d) {
+                              if (checkIsItValidHexString(d)) {
+                                e.hexColorString = d;
+                              } else {
+                                controller.text = e.hexColorString;
+                              }
+                              gradProvider.updateUi();
+                            },
                           ),
                         ),
+                        // Container(
+                        //   decoration: BoxDecoration(
+                        //     color: Colors.amber.shade100,
+                        //       // border: Border.all(),
+                        //       borderRadius: BorderRadius.circular(8)),
+                        //   height: bh - pad * 2,
+                        //   // margin: EdgeInsets.all(editOptionW * 0.02),
+                        //   width: editOptionW * 0.8 - bh - pad * 2-12,
+                        //   child: true
+                        //       ? TextField(
+                        //           textAlign: TextAlign.center,
+                        //           controller: controller,
+                        //           decoration: const InputDecoration(
+                        //             contentPadding: EdgeInsets.zero,
+                        //             border: InputBorder.none,
+                        //           ),
+                        //           style: const TextStyle(
+                        //             color: Colors.white
+                        //           ),
+                        //           onSubmitted: (d) {
+                        //             if (checkIsItValidHexString(d)) {
+                        //               e.hexColorString = d;
+                        //             } else {
+                        //               controller.text = e.hexColorString;
+                        //             }
+                        //             gradProvider.updateUi();
+                        //           },
+                        //         )
+                        //       : SelectableText(
+                        //           e.hexColorString,
+                        //           style: TextStyle(fontSize: bh * 0.5),
+                        //         ),
+                        // ),
                         InkWell(
                           onTap: () {
                             if (gradProvider.colorStopModels.length > 2) {
@@ -126,8 +165,11 @@ class GradientColorsListWidget extends StatelessWidget {
                             padding: EdgeInsets.all(bh * 0.1),
                             width: bh - pad * 2,
                             // color: Colors.amber,
-                            child:
-                                const FittedBox(child: const Icon(Icons.close)),
+                            child: const FittedBox(
+                                child: Icon(
+                              Icons.close,
+                              color: Colors.white,
+                            )),
                           ),
                         ),
                       ],

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const curveiconBoxActiveColor = Color.fromARGB(255, 177, 235, 179);
+const curveiconBoxActiveColor = Color.fromARGB(255, 151, 249, 154);
 const curveiconBoxInActiveColor = Color.fromARGB(255, 211, 230, 212);
 
 const openButtonBGColor = Color.fromARGB(255, 37, 4, 113);

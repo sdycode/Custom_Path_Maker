@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:custom_path_maker/constants/button_styles.dart';
 import 'package:custom_path_maker/constants/consts.dart';
 import 'package:custom_path_maker/constants/global.dart';
 import 'package:custom_path_maker/constants/gradient_constants.dart';
@@ -19,29 +20,58 @@ class GradSweepRadiusSlider extends StatelessWidget {
     return Positioned(
         bottom: 0,
         left: 0,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-                width: w - editOptionW,
-                child: SliderTheme(
-                  data: sliderThemeData,
-                  child: RangeSlider(
-                      min: 0,
-                      max: pi * 2,
-                      values: values,
-                      labels: const RangeLabels("Start Angle", "End Angle"),
-                      onChanged: (d) {
-                        pathModels[pathModelIndex].startSweepAngle = d.start;
-                        pathModels[pathModelIndex].endSweepAngle = d.end;
+        child: Container(
+          width:mainScreenW,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        // width: w - editOptionW,
+                        child: SliderTheme(
+                          data: sliderThemeData,
+                          child: RangeSlider(
+                              min: 0,
+                              max: pi * 2,
+                              activeColor: Colors.orange,
+                              values: values,
+                              labels: const RangeLabels("Start Angle", "End Angle"),
+                              onChanged: (d) {
+                                pathModels[pathModelIndex].startSweepAngle =
+                                    d.start;
+                                pathModels[pathModelIndex].endSweepAngle = d.end;
+                                p.updateUI();
+                              }),
+                        )),
+                  ),
+                  ElevatedButton.icon(
+                      style: openPathButtonStyle,
+                      onPressed: () {
+                        pathModels[pathModelIndex].continuousSweep =
+                            !pathModels[pathModelIndex].continuousSweep;
                         p.updateUI();
-                      }),
-                )),
-            ColorStopSlider(
-              th: gradColorSliderHeight,
-              tw: w - editOptionW,
-            )
-          ],
+                      },
+                      icon: Icon(pathModels[pathModelIndex].continuousSweep
+                          ? Icons.check_box
+                          : Icons.check_box_outline_blank),
+                      label: const Text(
+                        "Continuous Sweep",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ))
+                ],
+              ),
+              ColorStopSlider(
+                th: gradColorSliderHeight,
+                tw: mainScreenW,
+              )
+            ],
+          ),
         ));
   }
 }

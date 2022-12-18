@@ -37,6 +37,7 @@ class MyApp extends StatelessWidget {
         ),
         home: Builder(builder: (context) {
           reInitiaiseGlobalFields(context);
+          
           return const PathDrawingScreen();
         }),
       ),

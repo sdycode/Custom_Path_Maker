@@ -31,9 +31,10 @@ bool isSelectedPoint() {
           Offset.lerp(points[0].point, points[1].point, 0.7) ?? points[1].point;
       points[1].prePoint = prePoint;
       points[1].postPoint = postPoint;
-    } else {
+    } else if(i>0) {
       /// i>1 [ 2,3,4,. . . . ]
       /// modify post point of previous (i.e  i-1 point)
+    
       Offset previousPostPoint =
           Offset.lerp(points[i - 1].point, points[i].point, 0.3) ??
               points[i - 1].point;
