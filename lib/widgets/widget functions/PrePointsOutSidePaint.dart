@@ -6,25 +6,36 @@ import 'package:custom_path_maker/functions/updatePrePostPointForSymmetry.dart';
 import 'package:custom_path_maker/providers/edit_option_provider.dart';
 import 'package:custom_path_maker/providers/path_screen_provider.dart';
 import 'package:custom_path_maker/screens/path_drawing_screen.dart';
+import 'package:custom_path_maker/widgets/bottomBar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-PrePointsOutSidePaint(BuildContext context) {  PathScreenProvider p = Provider.of<PathScreenProvider>(
+PrePointsOutSidePaint(BuildContext context) {
+  PathScreenProvider p = Provider.of<PathScreenProvider>(
     context,
   );
   EditOptionProvider editProvider = Provider.of<EditOptionProvider>(
     context,
   );
- 
+
   return [
     ...(selectedPoints.keys.map((int k) {
+      Offset shiftetPosition = Offset(
+          points[k].postPoint.dx -
+              pointSize * 0.5 +
+              drawingBoardLeftOffset +
+              pathModels[pathModelIndex].offsetFromOrigin.dx,
+          points[k].postPoint.dy -
+              pointSize * 0.5 +
+              drawingBoardTopOffset +
+              pathModels[pathModelIndex].offsetFromOrigin.dy);
       return Positioned(
-          left:
-              points[k].postPoint.dx - pointSize * 0.5 + drawingBoardLeftOffset,
-          top: points[k].postPoint.dy - pointSize * 0.5 + drawingBoardTopOffset,
-          child: GestureDetector(
+        left: shiftetPosition.dx,
+        top: shiftetPosition.dy,
+        child: GestureDetector(
             onTap: () {
-              p.updateUI();  editProvider.updateUI();
+              p.updateUI();
+              editProvider.updateUI();
             },
             onPanUpdate: (d) {
               points[k].postPoint = Offset(
@@ -36,17 +47,21 @@ PrePointsOutSidePaint(BuildContext context) {  PathScreenProvider p = Provider.o
                 bool isPre = false;
                 updatePrePostPointForSymmetry(isPre, k);
               }
-              p.updateUI();  editProvider.updateUI();
+              p.updateUI();
+              editProvider.updateUI();
             },
-            child: Container(
-              width: pointSize,
-              height: pointSize,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.green.withAlpha(150),
+            child: Transform.scale(scale: 1/zoomValue,
+              child: Container(
+                width: pointSize,
+                height: pointSize,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.green.withAlpha(150),
+                ),
               ),
             ),
-          ));
+          ),
+      );
     })),
   ];
 }

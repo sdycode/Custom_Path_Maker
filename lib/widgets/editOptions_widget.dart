@@ -8,6 +8,8 @@ import 'package:custom_path_maker/constants/global.dart';
 import 'package:custom_path_maker/enum/enums.dart';
 import 'package:custom_path_maker/functions/checkIfIndexPresentInList.dart';
 import 'package:custom_path_maker/providers/edit_option_provider.dart';
+import 'package:custom_path_maker/widgets/Buttons/hideControlPointsButton.dart';
+import 'package:custom_path_maker/widgets/Buttons/showLayersButton.dart';
 import 'package:custom_path_maker/widgets/ColorAndGradientButton.dart';
 import 'package:custom_path_maker/widgets/DrawingBoardTileWidget.dart';
 import 'package:custom_path_maker/widgets/FillAndOpenButtons.dart';
@@ -42,6 +44,7 @@ class EditOptions_widget extends StatelessWidget {
                 CurveIconsInRowWidget(),
                 if (checkRadiusSliderCanbeshowdForSelectedPoint(selectedPoint))
                   const RadiusSlider(),
+                   const HideControlPointsWidgetButton(),
                 // const FillAndOpenButtons(),
                 const OpenCloseButtonsWithSlider(),
                 const FillStrokeButtonsWithSlider(),
@@ -50,7 +53,8 @@ class EditOptions_widget extends StatelessWidget {
                     GradientType.color)
                   const GradientDetailsWidget(),
 
-                const DrawingBoardTileWidget()
+                const DrawingBoardTileWidget(),
+                // const ShowLayersWidgetButton()
               ],
             ),
           ),

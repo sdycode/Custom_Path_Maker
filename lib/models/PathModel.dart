@@ -10,6 +10,7 @@ class PathModel {
   int pathNo;
   String pathName;
   List<CurvePoint> points = [];
+  Offset offsetFromOrigin = Offset.zero;
   bool continuousSweep = true;
   bool open;
   bool stroke;

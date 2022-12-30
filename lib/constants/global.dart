@@ -20,3 +20,32 @@ List<PathModel> pathModels = [
 ];
 int pathModelIndex = 0;
 List<CurvePoint> list = [];
+List<String> hexColors = [
+  "ffaa55",
+  "ee9ca7",
+"ffdde1",
+"2193b0",
+"6dd5ed",
+"FBD786",
+"f7797d",
+"c471ed",
+"f7797d",
+"373B44",
+"4286f4",
+"6DD5FA",
+"FFFFFF",
+"2980B9",
+"6DD5FA",
+"FF0099",
+"493240",
+"1f4037",
+"99f2c8",
+"f12711",
+"f5af19",
+"005AA7",
+"FFFDE4",
+"a8c0ff",
+"3f2b96",
+"fffbd5",
+"b20a2c",
+];

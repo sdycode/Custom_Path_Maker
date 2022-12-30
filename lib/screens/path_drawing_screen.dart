@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'dart:io';
 
 import 'package:custom_path_maker/2D%20Gerometry%20Functions/math/getRectBoundaryPointsFromGivenPoints.dart';
+import 'package:custom_path_maker/Painter/pathClipperWidget.dart';
 import 'package:custom_path_maker/constants/consts.dart';
 import 'package:custom_path_maker/constants/global.dart';
 import 'package:custom_path_maker/constants/gradient_constants.dart';
@@ -36,6 +37,9 @@ double drawingBoardTopOffset = 100;
 BackgroundImageStatus backgroundImageStatus = BackgroundImageStatus.none;
 int bgImageFitIndex = 0;
 double bgImageOpacity = 0.5;
+bool showLayersList = true;
+bool hideControlPoints = false;
+bool moveShapeWidget = false;
 
 class PathDrawingScreen extends StatefulWidget {
   const PathDrawingScreen({Key? key}) : super(key: key);
@@ -89,15 +93,60 @@ class _PathDrawingScreenState extends State<PathDrawingScreen> {
 
                       // width: h * 0.6,
                       //                           height: h * 0.6,
-                      Positioned(
-                          left: drawingBoardLeftOffset,
-                          top: drawingBoardTopOffset,
-                          child:
-                          DrawingBoardWidget(),),
-                      
-                      ...PointsOutslideCustomPaint(context),
-                      ...PrePointsOutSidePaint(context),
-                      ...PostPointsOutSidePaint(context),
+
+                      Transform.scale(
+                        origin: Offset(0, mainScreenH * 0.5),
+                        scale: zoomValue,
+                        child: Transform.translate(
+                          offset: zoomPanOffset,
+                          child: Stack(
+                            children: [
+                              Positioned(
+                                left: drawingBoardLeftOffset,
+                                top: drawingBoardTopOffset,
+                                child: DrawingBoardWidget(),
+                              ),
+                              if (!hideControlPoints)
+                                ...PointsOutslideCustomPaint(context),
+                              if (!hideControlPoints)
+                                ...PrePointsOutSidePaint(context),
+                              if (!hideControlPoints)
+                                ...PostPointsOutSidePaint(context),
+                              if (moveShapeWidget)
+                                Positioned(
+                                  left: pathModels[pathModelIndex]
+                                          .offsetFromOrigin
+                                          .dx +
+                                      drawingBoardLeftOffset,
+                                  top: pathModels[pathModelIndex]
+                                          .offsetFromOrigin
+                                          .dy +
+                                      drawingBoardTopOffset,
+                                  child: ClipPath(
+                                    clipBehavior: Clip.antiAlias,
+                                    clipper: ClipperPathWidget(pathModelIndex),
+                                    child: GestureDetector(
+                                      onPanUpdate: (d) {
+                                        translatePoints(
+                                            pathModelIndex, d.delta);
+                                        p.updateUI();
+                                      },
+                                      child: Container(
+                                          height: mainScreenH,
+                                          width: mainScreenW,
+                                          decoration: BoxDecoration(
+                                              border: null,
+                                              //  Border.all(width: 2),
+                                              color: Colors.grey.shade100
+                                                  .withAlpha(0))),
+                                    ),
+                                  ),
+                                )
+                            ],
+                          ),
+                        ),
+                      ),
+
                       if (!isGradient &&
                           pathModels[pathModelIndex]
                                   .gradientType
@@ -148,8 +197,36 @@ class _PathDrawingScreenState extends State<PathDrawingScreen> {
                               th: gradColorSliderHeight,
                               tw: w - editOptionW,
                             )),
-                            LayersListWidget(),
+                      if (showLayersList) LayersListWidget(),
                       const EditOptions_widget(),
+
+                      // if (moveShapeWidget)
+                      //   Positioned(
+                      //     left:
+                      //         pathModels[pathModelIndex].offsetFromOrigin.dx +
+                      //             drawingBoardLeftOffset,
+                      //     top:
+                      //         pathModels[pathModelIndex].offsetFromOrigin.dy +
+                      //             drawingBoardTopOffset,
+                      //     child: ClipPath(
+                      //       clipBehavior: Clip.antiAlias,
+                      //       clipper: ClipperPathWidget(pathModelIndex),
+                      //       child: GestureDetector(
+                      //         onPanUpdate: (d) {
+                      //           translatePoints(pathModelIndex, d.delta);
+                      //           p.updateUI();
+                      //         },
+                      //         child: Container(
+                      //             height: mainScreenH,
+                      //             width: mainScreenW,
+                      //             decoration: BoxDecoration(
+                      //                 border: null,
+                      //                 //  Border.all(width: 2),
+                      //                 color:
+                      //                     Colors.grey.shade100.withAlpha(0))),
+                      //       ),
+                      //     ),
+                      //   )
                     ]),
               ),
               const BottomBar()
@@ -159,16 +236,18 @@ class _PathDrawingScreenState extends State<PathDrawingScreen> {
   }
 }
 
-Uint8List? imageData;
+Uint8List? assetImageData;
+Uint8List? pickedImageData;
 void loadBackgroundImage() async {
-  imageData = (await rootBundle.load('assets/sampleImage/duck.jpg'))
+  assetImageData = (await rootBundle.load('assets/sampleImage/duck.jpg'))
       .buffer
       .asUint8List();
+  pickedImageData = Uint8List.fromList(assetImageData!);
 }
 
 Future pickAndLoadImageFromDevice() async {
   imgP.ImagePickerPlugin imagePickerPlugin = imgP.ImagePickerPlugin();
   PickedFile pickedFile =
       await imagePickerPlugin.pickImage(source: ImageSource.gallery);
-  imageData = await pickedFile.readAsBytes();
+  pickedImageData = await pickedFile.readAsBytes();
 }

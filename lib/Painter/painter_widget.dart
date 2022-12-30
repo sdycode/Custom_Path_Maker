@@ -10,6 +10,8 @@ import 'package:custom_path_maker/constants/matrix.dart';
 import 'package:custom_path_maker/enum/enums.dart';
 import 'package:custom_path_maker/functions/checkIfIndexPresentInList.dart';
 import 'package:custom_path_maker/models/PathModel.dart';
+import 'package:custom_path_maker/screens/path_drawing_screen.dart';
+import 'package:custom_path_maker/widgets/bottomBar.dart';
 import 'package:flutter/material.dart';
 
 ui.Shader? getShader(
@@ -101,7 +103,7 @@ class PointPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size s) {
-    log("pathmodel no $pathNo plen ${pathModel.points.length}");
+    // log("pathmodel no $pathNo plen ${pathModel.points.length}");
     // log("sele tilemode in paint ${pathModels[pathModelIndex].tileMode}/  ${pathModel.tileMode}");
 
     // log("boxdata ${box.width} / ${box.height} / ${h * 0.6} / ${box.center}");
@@ -234,15 +236,15 @@ class PointPainter extends CustomPainter {
     }
 
     canvas.drawPath(path, paint);
-
-    Path preLinePath = Path();
+if(!hideControlPoints && pathNo== pathModels[pathModelIndex].pathNo){
+ Path preLinePath = Path();
     Path postLinePath = Path();
     Paint prePathPaint = Paint()
-      ..strokeWidth = 1.5
+      ..strokeWidth = 1.5*( 1/zoomValue)
       ..color = Colors.deepPurple
       ..style = PaintingStyle.stroke;
     Paint postPathPaint = Paint()
-      ..strokeWidth = 1.5
+      ..strokeWidth = 1.5*( 1/zoomValue)
       ..color = Colors.green
       ..style = PaintingStyle.stroke;
 
@@ -260,6 +262,8 @@ class PointPainter extends CustomPainter {
     canvas.drawPath(preLinePath, prePathPaint);
 
     canvas.drawPath(postLinePath, postPathPaint);
+}
+   
   }
 
   @override

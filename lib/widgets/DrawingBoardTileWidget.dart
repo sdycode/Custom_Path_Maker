@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:typed_data';
+
 import 'package:custom_path_maker/constants/consts.dart';
 import 'package:custom_path_maker/constants/global.dart';
 import 'package:custom_path_maker/enum/enums.dart';
@@ -33,8 +35,11 @@ class DrawingBoardTileWidget extends StatelessWidget {
       context,
     );
     return Container(
+        // color: Colors.green,
         width: editOptionW,
         child: ExpansionTile(
+          // childrenPadding: EdgeInsets.zero,
+          // tilePadding: EdgeInsets.zero,
           title: const Text(
             "Drawing Board",
             style: TextStyle(color: Colors.white),
@@ -241,18 +246,36 @@ class DrawingBoardTileWidget extends StatelessWidget {
                       children: [
                         TextButton(
                             onPressed: () async {
-                              await pickAndLoadImageFromDevice();
+                              backgroundImageStatus =
+                                  BackgroundImageStatus.asset;
+
+                              pickedImageData =
+                                  Uint8List.fromList(assetImageData!);
                               p.updateUI();
                               editProvider.updateUI();
                             },
                             child: Text(
-                              "Background Image",
+                              "BG Image",
                               style: textFieldStyle.copyWith(fontSize: 14),
+                            )),
+                        Spacer(),
+                        IconButton(
+                            iconSize: 20,
+                            padding: EdgeInsets.zero,
+                            onPressed: () async {
+                              await pickAndLoadImageFromDevice();
+                              p.updateUI();
+                              editProvider.updateUI();
+                            },
+                            icon: const Icon(
+                              Icons.add,
+                              color: Colors.white,
                             )),
                         IconButton(
                             iconSize: 20,
                             padding: EdgeInsets.zero,
                             onPressed: () {
+                              
                               if (backgroundImageStatus ==
                                   BackgroundImageStatus.none) {
                                 backgroundImageStatus =
@@ -274,7 +297,7 @@ class DrawingBoardTileWidget extends StatelessWidget {
                         // backgroundImageStatus
                       ],
                     ))),
-            if (imageData != null &&
+            if (pickedImageData != null &&
                 backgroundImageStatus != BackgroundImageStatus.none)
               Padding(
                 padding: EdgeInsets.all(4),
@@ -303,7 +326,8 @@ class DrawingBoardTileWidget extends StatelessWidget {
                                                 color: Colors.red, width: 3)
                                             : null,
                                         image: DecorationImage(
-                                            image: MemoryImage(imageData!),
+                                            image:
+                                                MemoryImage(pickedImageData!),
                                             fit: BoxFit.values[i]),
                                       )),
                                 ),
@@ -312,8 +336,9 @@ class DrawingBoardTileWidget extends StatelessWidget {
                   ],
                 ),
               ),
-              if (imageData != null &&
-                backgroundImageStatus != BackgroundImageStatus.none)  BGImageOpacitySlider()
+            if (pickedImageData != null &&
+                backgroundImageStatus != BackgroundImageStatus.none)
+              BGImageOpacitySlider()
           ],
         ));
   }

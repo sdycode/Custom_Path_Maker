@@ -1,7 +1,12 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:custom_path_maker/constants/consts.dart';
 import 'package:custom_path_maker/constants/global.dart';
 import 'package:custom_path_maker/providers/path_screen_provider.dart';
+import 'package:custom_path_maker/screens/path_drawing_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 class TopBar extends StatelessWidget {
@@ -16,10 +21,32 @@ class TopBar extends StatelessWidget {
       color: Colors.amber.shade200,
       child: Row(
         children: [
-          ElevatedButton(
-              onPressed: () {
-                showCUrrentEditingPath = !showCUrrentEditingPath;
+          Container(
+            margin: EdgeInsets.all(4),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                border: moveShapeWidget ? Border.all(color: Colors.blue) : null,
+                color:
+                    Color.fromARGB(moveShapeWidget ? 150 : 0, 156, 206, 247)),
+            child: InkWell(
+              onTap: () {
+                moveShapeWidget = !moveShapeWidget;
                 p.updateUI();
+              },
+              child: Image.asset("assets/icons/translate.png"),
+            ),
+          ),
+          // eid 24585
+          //
+          ElevatedButton(
+              onPressed: () async {
+                Directory? dir = await getDownloadsDirectory();
+                log("dirpath ${dir?.path}");
+                File file = File("${dir?.path}/Painter_Models_Enums.dart");
+
+                file.writeAsString("string with nothing");
+                // showCUrrentEditingPath = !showCUrrentEditingPath;
+                // p.updateUI();
               },
               child: Text(showCUrrentEditingPath ? "hide" : "Show"))
         ],

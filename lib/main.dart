@@ -1,3 +1,6 @@
+import 'dart:developer';
+import 'dart:ui';
+
 import 'package:custom_path_maker/constants/consts.dart';
 import 'package:custom_path_maker/functions/reinitalisegloablfields.dart';
 import 'package:custom_path_maker/providers/gradprovider.dart';
@@ -8,8 +11,18 @@ import 'package:provider/provider.dart';
 
 import 'providers/edit_option_provider.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  //  await myErrorsHandler.initialize();
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    // myErrorsHandler.onErrorDetails(details);
+  };
+  PlatformDispatcher.instance.onPlatformBrightnessChanged = () {
+    log("message onPlatformBrightnessChanged");
+    // myErrorsHandler.onError(error, stack);
+    // return true;
+  };
   runApp(const MyApp());
 }
 
@@ -37,7 +50,7 @@ class MyApp extends StatelessWidget {
         ),
         home: Builder(builder: (context) {
           reInitiaiseGlobalFields(context);
-          
+
           return const PathDrawingScreen();
         }),
       ),
