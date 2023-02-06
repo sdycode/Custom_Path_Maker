@@ -19,6 +19,7 @@ import 'package:custom_path_maker/widgets/curveiconsinrow.dart';
 import 'package:custom_path_maker/widgets/fill_stroke_buttons.dart';
 import 'package:custom_path_maker/widgets/openCloseButtons.dart';
 import 'package:custom_path_maker/widgets/radius_slider.dart';
+import 'package:custom_path_maker/widgets/strokeWidthSlider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -34,7 +35,7 @@ class EditOptions_widget extends StatelessWidget {
       child: Container(
         width: editOptionW,
         color: Color.fromARGB(255, 33, 33, 33),
-        height: h,
+        height:editOptionH,
         child: Scrollbar(controller: controller,
         trackVisibility: true,
           child: SingleChildScrollView(controller: controller,
@@ -48,6 +49,8 @@ class EditOptions_widget extends StatelessWidget {
                 // const FillAndOpenButtons(),
                 const OpenCloseButtonsWithSlider(),
                 const FillStrokeButtonsWithSlider(),
+                if(  pathModels[pathModelIndex].stroke)
+                StrokeWidthSlider(),
                 const ColorAndGradientButton(),
                 if (pathModels[pathModelIndex].gradientType !=
                     GradientType.color)

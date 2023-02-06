@@ -1,6 +1,7 @@
 double h = 800;
 double w = 800;
 const double editOptionW = 220;
+double editOptionH =300;
 const double layersListWidgetW = 180;
  double layersListWidgetH= 500;
 const double topbarH = 30;

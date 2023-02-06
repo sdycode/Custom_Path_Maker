@@ -1,6 +1,9 @@
 import 'dart:math';
 
+import 'package:custom_path_maker/2D%20Gerometry%20Functions/functions%20to%20fill%20CurvePoints%20data/get_enums_to_fill_curvePointsList_from_map_data.dart';
 import 'package:custom_path_maker/enum/enums.dart';
+import 'package:custom_path_maker/functions/Data%20from%20String/offsetFromString.dart';
+import 'package:custom_path_maker/functions/Data%20from%20String/sizeFromString.dart';
 import 'package:custom_path_maker/models/colorStopModel.dart';
 import 'package:custom_path_maker/models/curve_point.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +17,7 @@ class PathModel {
   bool continuousSweep = true;
   bool open;
   bool stroke;
+  double strokeWidth = 3;
   double rad = 400;
   double focalRad = 0;
   double startSweepAngle = 0;
@@ -33,6 +37,7 @@ class PathModel {
   Offset focalCenter = Offset(150, 150);
   Size size;
   TileMode tileMode;
+
   PathModel.withAllData(
       {required this.pathNo,
       required this.pathName,
@@ -40,6 +45,7 @@ class PathModel {
       required this.continuousSweep,
       required this.open,
       required this.stroke,
+      required this.strokeWidth,
       required this.rad,
       required this.focalRad,
       required this.startSweepAngle,
@@ -53,7 +59,9 @@ class PathModel {
       required this.center,
       required this.focalCenter,
       required this.size,
-      required this.tileMode});
+      required this.tileMode,
+      required this.offsetFromOrigin
+      });
   PathModel.withCurvePoints(
     this.points, {
     required this.paint,
@@ -75,12 +83,17 @@ class PathModel {
         continuousSweep: pathModel.continuousSweep,
         open: pathModel.open,
         stroke: pathModel.stroke,
+        strokeWidth: pathModel.strokeWidth,
         rad: pathModel.rad,
         focalRad: pathModel.focalRad,
         startSweepAngle: pathModel.startSweepAngle,
         endSweepAngle: pathModel.endSweepAngle,
         hexColorString: pathModel.hexColorString,
-        colorStopModels: pathModel.colorStopModels,
+        colorStopModels: [
+          ...pathModel.colorStopModels.map((e) {
+            return ColorStopModel.copy(e);
+          })
+        ],
         paint: pathModel.paint,
         gradientType: pathModel.gradientType,
         linearFrom: pathModel.linearFrom,
@@ -88,7 +101,9 @@ class PathModel {
         center: pathModel.center,
         focalCenter: pathModel.focalCenter,
         size: pathModel.size,
-        tileMode: pathModel.tileMode);
+        tileMode: pathModel.tileMode,
+        offsetFromOrigin: pathModel.offsetFromOrigin
+        );
   }
   PathModel.withoutPoints(
       {required this.paint,
@@ -98,4 +113,71 @@ class PathModel {
       required this.pathNo,
       required this.size,
       required this.tileMode});
+  factory PathModel.fromJson(Map<String, dynamic> map) {
+    return PathModel.withAllData(
+        pathNo: map["pathNo"] as int,
+        pathName: map["pathName"] as String,
+        points: [
+          ...((map["points"] as List).map((e) {
+            return CurvePoint.fromCurvePointData(CurvePointData.fromJson(e));
+          }))
+        ],
+        continuousSweep: map["continuousSweep"] as bool,
+        open: map["open"] as bool,
+        stroke: map["stroke"] as bool,
+        strokeWidth: map["strokeWidth"] as double,
+        rad: map["rad"] as double,
+        focalRad: map["focalRad"] as double,
+        startSweepAngle: map["startSweepAngle"] as double,
+        endSweepAngle: map["endSweepAngle"] as double,
+        hexColorString: map["hexColorString"] as String,
+        colorStopModels: [
+          ...((map["colorStopModels"] as List).map((e) {
+            return ColorStopModel.fromJson(e);
+          }))
+        ],
+        paint: Paint(),
+        gradientType: getGradientTypeFromString(map["gradientType"] as String),
+        linearFrom: offsetFromString(map["linearFrom"].toString()),
+        linearTo: offsetFromString(map["linearTo"].toString()),
+        center: offsetFromString(map["center"].toString()),
+        focalCenter: offsetFromString(map["focalCenter"].toString()),
+        size: sizeFromString(map["size"].toString()),
+        tileMode: getTileModeFromString(map["tileMode"] as String),
+        offsetFromOrigin: offsetFromString(map["offsetFromOrigin"].toString()));
+  }
+  Map<String, dynamic> toJson() {
+    return {
+      "pathNo": this.pathNo,
+      "pathName": this.pathName,
+      "points": [
+        ...this.points.map((e) {
+          return CurvePointData.fromCurvePoint(e).toStringNumJson();
+        })
+      ],
+      "continuousSweep": this.continuousSweep,
+      "open": this.open,
+      "stroke": this.stroke,
+      "strokeWidth": this.strokeWidth,
+      "rad": this.rad,
+      "focalRad": this.focalRad,
+      "startSweepAngle": this.startSweepAngle,
+      "endSweepAngle": this.endSweepAngle,
+      "hexColorString": this.hexColorString,
+      "colorStopModels": [
+        ...this.colorStopModels.map((e) {
+          return e.getJsonMapForColorStopModel(e);
+        })
+      ],
+      "paint": this.paint.toString(),
+      "gradientType": this.gradientType.toString(),
+      "linearFrom": this.linearFrom.toString(),
+      "linearTo": this.linearTo.toString(),
+      "center": this.center.toString(),
+      "focalCenter": this.focalCenter.toString(),
+      "size": this.size.toString(),
+      "tileMode": this.tileMode.toString(),
+      "offsetFromOrigin": this.offsetFromOrigin.toString()
+    };
+  }
 }

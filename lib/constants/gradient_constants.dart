@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 double colorListBoxW = w * 0.18;
 double colorListBoxH = h * 0.4;
 double sliderWidth = w * 0.7;
-double sliderActualWidthFactor = 0.96;
+double sliderActualWidthFactor = 0.96; // before
+//changed
+double actualW = w * 0.7;
 double sliderActualWidthFactorWithPadding = 0.96;
 double gradeSelectBoxW = h * 0.1;
 double demoBoxSizeW = h * 0.4;

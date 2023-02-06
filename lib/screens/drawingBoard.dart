@@ -29,7 +29,8 @@ class DrawingBoardWidget extends StatelessWidget {
     //       fit: BoxFit.values[bgImageFitIndex],
     //       opacity: bgImageOpacity);
     // }
-    if (pickedImageData != null && backgroundImageStatus != BackgroundImageStatus.none) {
+    if (pickedImageData != null &&
+        backgroundImageStatus != BackgroundImageStatus.none) {
       return DecorationImage(
           image: MemoryImage(pickedImageData!),
           fit: BoxFit.values[bgImageFitIndex],
@@ -41,13 +42,13 @@ class DrawingBoardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     PathScreenProvider p = Provider.of<PathScreenProvider>(context);
-    log("pointslen --------------------------- ");
+    // log("pointslen --------------------------- ");
     // for (var i = 0; i < pathModels.length; i++) {
     //   log("points of $i :  ------ \n ${pathModels[i].points.map(
     //         (e) => e.point,
     //       ).toList()}");
     // }
-    log("showhide ${showHidePaths}");
+    log("showhide ${showHidePaths} / ${pathModels.length} /${pathModels.first.points.length}");
     return Container(
         height: drawingBoardH,
         width: drawingBoardW,
@@ -63,7 +64,12 @@ class DrawingBoardWidget extends StatelessWidget {
               width: drawingBoardW,
             ),
             ...List.generate(pathModels.length, (i) {
-              log("pointslen $i : ${pathModels[i].points.length}");
+              // log("pointslen $i : ${pathModels[i].points.length}");
+              // int n = 0;
+              // pathModels[i].points.forEach((e) {
+              //   n++;
+              //   // log("ppn $i : $n : ${e.arcTypeOnPoint}");
+              // });
               return i == pathModelIndex
                   ? Container()
                   :
@@ -95,60 +101,57 @@ class DrawingBoardWidget extends StatelessWidget {
                       ),
                     );
             }),
+            GestureDetector(
+              onPanUpdate: (d) {
+                if (isZoomPanEnabled) {
+                  zoomPanOffset = Offset(zoomPanOffset.dx + d.delta.dx,
+                      zoomPanOffset.dy + d.delta.dy);
+                  p.updateUI();
+                }
+              },
+              onTapUp: (d) {
+                log("point tapped / $selectedPoint :  $d / ");
 
+                points.add(CurvePoint.withIndexAndOffset(
+                    index: points.length, point: d.localPosition));
+                selectedPoint = points.length - 1;
+                setCurvePointJustAfterAdded(selectedPoint);
+                p.updateUI();
+              },
+              child: MouseRegion(
+                cursor: isZoomPanEnabled
+                    ? SystemMouseCursors.click
+                    : MouseCursor.defer,
+                child: Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: Colors.pink.withAlpha(0),
+                ),
+              ),
+            ),
             if (showCUrrentEditingPath)
               Transform.translate(
                 offset: pathModels[pathModelIndex].offsetFromOrigin,
                 //   left: pathModels[pathModelIndex].offsetFromOrigin.dx,
                 // top: pathModels[pathModelIndex].offsetFromOrigin.dy,
-                child: Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  child: CustomPaint(
-                    painter: PointPainter(
-                        pathModelIndex,
-                        getBoxForPoints(pathModels[pathModelIndex]
-                            .points
-                            .map((e) => e.point)
-                            .toList()),
-                        pathModel: pathModels[pathModelIndex]),
-                    child: Stack(
-                        fit: StackFit.expand,
-                        clipBehavior: Clip.none,
-                        children: [
-                          GestureDetector(
-                            onPanUpdate: (d) {
-                              if (isZoomPanEnabled) {
-                                zoomPanOffset = Offset(
-                                    zoomPanOffset.dx + d.delta.dx,
-                                    zoomPanOffset.dy + d.delta.dy);
-                                p.updateUI();
-                              }
-                            },
-                            onTapUp: (d) {
-                              points.add(CurvePoint.withIndexAndOffset(
-                                  index: points.length,
-                                  point: d.localPosition));
-                              selectedPoint = points.length - 1;
-                              setCurvePointJustAfterAdded(selectedPoint);
-                              p.updateUI();
-                            },
-                            // child: Container(
-                            //   width: double.infinity,
-                            //   height: double.infinity,
-                            //   color: Colors.transparent,
-                            // ),
-                          ),
-                        ]),
+                child: IgnorePointer(
+                  ignoring: true,
+                  child: Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: Colors.pink.shade100.withAlpha(0),
+                    child: CustomPaint(
+                      painter: PointPainter(
+                          pathModelIndex,
+                          getBoxForPoints(pathModels[pathModelIndex]
+                              .points
+                              .map((e) => e.point)
+                              .toList()),
+                          pathModel: pathModels[pathModelIndex]),
+                    ),
                   ),
                 ),
               ),
-            // Positioned(
-            //     // left: pathModels[pathModelIndex].offsetFromOrigin.dx,
-            //     // top: pathModels[pathModelIndex].offsetFromOrigin.dy,
-            //     child: CircleAvatar(
-            //       radius: 50,
-            //     ))
           ],
         ));
   }

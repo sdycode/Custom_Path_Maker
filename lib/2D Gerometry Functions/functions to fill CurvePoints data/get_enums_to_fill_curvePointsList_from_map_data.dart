@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:custom_path_maker/models/curve_point.dart';
@@ -28,6 +29,9 @@ enum ArcTypeOnPoint { normal, arc, symmetric, angleSymmetric, nonSymmetric }
 
 class GetEnumsUsedInCurvePoint {
   static PrePointCurveType getEnum_PrePointCurveType(String data) {
+    log("getEnum_PrePointCurveType data $data");
+    data = data.replaceAll("PrePointCurveType.", '').trim();
+    log("getEnum_PrePointCurveType data $data");
     switch (data) {
       case "normal":
         return PrePointCurveType.normal;
@@ -48,6 +52,9 @@ class GetEnumsUsedInCurvePoint {
   }
 
   static PostPointCurveType getEnum_PostPointCurveType(String data) {
+    log("getEnum_PostPointCurveType data $data");
+    data = data.replaceAll("PostPointCurveType.", '').trim();
+    log("getEnum_PostPointCurveType data $data");
     switch (data) {
       case "normal":
         return PostPointCurveType.normal;
@@ -68,6 +75,9 @@ class GetEnumsUsedInCurvePoint {
   }
 
   static PointPosition getEnum_PointPositione(String data) {
+    log("getEnum_PointPositione data $data");
+    data = data.replaceAll("PointPosition.", '').trim();
+    log("getEnum_PointPositione data $data");
     switch (data) {
       case "normal":
         return PointPosition.normal;
@@ -85,6 +95,9 @@ class GetEnumsUsedInCurvePoint {
   }
 
   static PointSymmetry getEnum_PointSymmetry(String data) {
+    log("getEnum_PointSymmetry data $data");
+    data = data.replaceAll("PointSymmetry.", '').trim();
+    log("getEnum_PointSymmetry data $data");
     switch (data) {
       case "angleSymmetry":
         return PointSymmetry.angleSymmetry;
@@ -102,6 +115,9 @@ class GetEnumsUsedInCurvePoint {
   }
 
   static ArcTypeOnPoint getEnum_ArcTypeOnPoint(String data) {
+    log("getEnum_ArcTypeOnPoint data $data");
+    data = data.replaceAll("ArcTypeOnPoint.", '').trim();
+    log("getEnum_ArcTypeOnPoint data $data");
     switch (data) {
       case "normal":
         return ArcTypeOnPoint.normal;
@@ -166,7 +182,53 @@ class CurvePointData {
       this.cl,
       this.pS,
       this.aTP});
-
+  factory CurvePointData.fromCurvePoint(CurvePoint p) {
+    return CurvePointData(
+      i: p.index,
+      pX: p.point.dx,
+      pY: p.point.dy,
+      pP: p.pointPosition,
+      prPCT: p.prePointCurveType,
+      psPCT: p.postPointCurveType,
+      prX: p.prePoint.dx,
+      prY: p.prePoint.dy,
+      psX: p.postPoint.dx,
+      psY: p.postPoint.dy,
+      prAEX: p.preArcEndPoint.dx,
+      prAEY: p.preArcEndPoint.dy,
+      psAEX: p.postArcEndPoint.dx,
+      psAEY: p.postArcEndPoint.dy,
+      r: p.arcRadius,
+      tr: p.tempArcRadius,
+      cl: p.isArcClockwise,
+      pS: p.pointSymmetry,
+      aTP: p.arcTypeOnPoint,
+    );
+  }
+  CurvePointData.fromModifedJson(Map<String, dynamic> json) {
+    i = json['i'] ?? 0;
+    pX = ((json['pX']) ?? 0.0) as double;
+    pY = ((json['pY']) ?? 0.0) as double;
+    pP = GetEnumsUsedInCurvePoint.getEnum_PointPositione(json['pP'] as String);
+    prPCT = GetEnumsUsedInCurvePoint.getEnum_PrePointCurveType(
+        json['prPCT'] as String);
+    psPCT = GetEnumsUsedInCurvePoint.getEnum_PostPointCurveType(
+        json['psPCT'] as String);
+    prX = (json['prX'] ?? 0.0) as double;
+    prY = (json['prY'] ?? 0.0) as double;
+    psX = (json['psX'] ?? 0.0) as double;
+    psY = (json['psY'] ?? 0.0) as double;
+    prAEX = (json['prAEX'] ?? 0.0) as double;
+    prAEY = (json['prAEY'] ?? 0.0) as double;
+    psAEX = (json['psAEX'] ?? 0.0) as double;
+    psAEY = (json['psAEY'] ?? 0.0) as double;
+    r = (json['r'] ?? 0.0) as double;
+    tr = (json['tr'] ?? 0.0) as double;
+    cl = json['cl'] == true ? true : false;
+    pS = GetEnumsUsedInCurvePoint.getEnum_PointSymmetry(json['pS'] as String);
+    aTP =
+        GetEnumsUsedInCurvePoint.getEnum_ArcTypeOnPoint(json['aTP'] as String);
+  }
   CurvePointData.fromJson(Map<String, dynamic> json) {
     i = int.tryParse(json['i'] as String) ?? 0;
     pX = double.tryParse(json['pX'] as String) ?? 0.0;
@@ -193,7 +255,7 @@ class CurvePointData {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = Map<String, dynamic>();
     data['i'] = this.i;
     data['pX'] = this.pX;
     data['pY'] = this.pY;
@@ -215,6 +277,30 @@ class CurvePointData {
     data['aTP'] = this.aTP;
     return data;
   }
+
+  Map<String, dynamic> toStringNumJson() {
+    final Map<String, dynamic> data = Map<String, dynamic>();
+    data['i'] = this.i;
+    data['pX'] = this.pX;
+    data['pY'] = this.pY;
+    data['pP'] = this.pP.toString();
+    data['prPCT'] = this.prPCT.toString();
+    data['psPCT'] = this.psPCT.toString();
+    data['prX'] = this.prX;
+    data['prY'] = this.prY;
+    data['psX'] = this.psX;
+    data['psY'] = this.psY;
+    data['prAEX'] = this.prAEX;
+    data['prAEY'] = this.prAEY;
+    data['psAEX'] = this.psAEX;
+    data['psAEY'] = this.psAEY;
+    data['r'] = this.r;
+    data['tr'] = this.tr;
+    data['cl'] = this.cl.toString();
+    data['pS'] = this.pS.toString();
+    data['aTP'] = this.aTP.toString();
+    return data;
+  }
 }
 
 class GetPointsDataFromJson {
@@ -225,9 +311,7 @@ class GetPointsDataFromJson {
       map.values.first.forEach((Map<String, String> e) {
         CurvePointData d = CurvePointData.fromJson(e);
 
-        points.add(
-          CurvePoint.fromCurvePointData(d)
-        );
+        points.add(CurvePoint.fromCurvePointData(d));
       });
     }
     return points;
@@ -310,12 +394,16 @@ void main() {
     "arcTypeOnPoint"
   ];
 
+  shortToLongMap.forEach((key, value) {
+    print("$key : p.${value},");
+    //  i: p.index,
+  });
   // l.forEach((e) {
   //   print('"$e": "\${p.${e}.toString()}", ');
   // });
-  shortToLongMap.forEach((key, value) {
-    print('"$value": "$key",');
-  });
+  // shortToLongMap.forEach((key, value) {
+  //   print('"$value": "$key",');
+  // });
   return;
 //
   List<ArcTypeOnPoint> values = ArcTypeOnPoint.values;

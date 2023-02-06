@@ -2,6 +2,7 @@ import 'package:custom_path_maker/constants/colors.dart';
 import 'package:custom_path_maker/constants/global.dart';
 import 'package:custom_path_maker/providers/path_screen_provider.dart';
 import 'package:custom_path_maker/screens/path_drawing_screen.dart';
+import 'package:custom_path_maker/widgets/bottomBar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -14,13 +15,18 @@ class LinearGradControlPoints extends StatelessWidget {
   Widget build(BuildContext context) {
     PathScreenProvider provider =
         Provider.of<PathScreenProvider>(context, listen: false);
+
     return Stack(
       children: [
         Positioned(
             top: pathModels[pathModelIndex].linearFrom.dy -
-                gradientControlPointRad+drawingBoardTopOffset,
+                gradientControlPointRad +
+                drawingBoardTopOffset +
+                pathModels[pathModelIndex].offsetFromOrigin.dy,
             left: pathModels[pathModelIndex].linearFrom.dx -
-                gradientControlPointRad+drawingBoardLeftOffset,
+                gradientControlPointRad +
+                drawingBoardLeftOffset +
+                pathModels[pathModelIndex].offsetFromOrigin.dx,
             child: CircleControlPoint(
                 fillColor: radiusSliderColor,
                 onPanUpdate: (DragUpdateDetails d) {
@@ -31,9 +37,13 @@ class LinearGradControlPoints extends StatelessWidget {
                 })),
         Positioned(
             top: pathModels[pathModelIndex].linearTo.dy -
-                gradientControlPointRad+drawingBoardTopOffset,
+                gradientControlPointRad +
+                drawingBoardTopOffset +
+                pathModels[pathModelIndex].offsetFromOrigin.dy,
             left: pathModels[pathModelIndex].linearTo.dx -
-                gradientControlPointRad+drawingBoardLeftOffset,
+                gradientControlPointRad +
+                drawingBoardLeftOffset +
+                pathModels[pathModelIndex].offsetFromOrigin.dx,
             child: CircleControlPoint(
                 fillColor: focalRadiusSliderColor,
                 onPanUpdate: (DragUpdateDetails d) {
@@ -59,26 +69,35 @@ class RadialGradControlPoints extends StatelessWidget {
     return Stack(
       children: [
         Positioned(
-            top: pathModels[pathModelIndex].center.dy - gradientControlPointRad+drawingBoardTopOffset,
-            left:
-                pathModels[pathModelIndex].center.dx - gradientControlPointRad+drawingBoardLeftOffset,
+            top: pathModels[pathModelIndex].center.dy -
+                gradientControlPointRad +
+                drawingBoardTopOffset +
+                pathModels[pathModelIndex].offsetFromOrigin.dy,
+            left: pathModels[pathModelIndex].center.dx -
+                gradientControlPointRad +
+                drawingBoardLeftOffset +
+                pathModels[pathModelIndex].offsetFromOrigin.dx,
             child: CircleControlPoint(
                 fillColor: radiusSliderColor,
                 onPanUpdate: (DragUpdateDetails d) {
-                  pathModels[0].center = Offset(
+                  pathModels[pathModelIndex].center = Offset(
                       pathModels[pathModelIndex].center.dx + d.delta.dx,
                       pathModels[pathModelIndex].center.dy + d.delta.dy);
                   provider.updateUI();
                 })),
         Positioned(
             top: pathModels[pathModelIndex].focalCenter.dy -
-                gradientControlPointRad+drawingBoardTopOffset,
+                gradientControlPointRad +
+                drawingBoardTopOffset +
+                pathModels[pathModelIndex].offsetFromOrigin.dy,
             left: pathModels[pathModelIndex].focalCenter.dx -
-                gradientControlPointRad+drawingBoardLeftOffset,
+                gradientControlPointRad +
+                drawingBoardLeftOffset +
+                pathModels[pathModelIndex].offsetFromOrigin.dx,
             child: CircleControlPoint(
                 fillColor: focalRadiusSliderColor,
                 onPanUpdate: (DragUpdateDetails d) {
-                  pathModels[0].focalCenter = Offset(
+                  pathModels[pathModelIndex].focalCenter = Offset(
                       pathModels[pathModelIndex].focalCenter.dx + d.delta.dx,
                       pathModels[pathModelIndex].focalCenter.dy + d.delta.dy);
                   provider.updateUI();
@@ -98,11 +117,16 @@ class SweepGradControlPoint extends StatelessWidget {
     return Stack(
       children: [
         Positioned(
-            top: pathModels[pathModelIndex].center.dy - gradientControlPointRad+drawingBoardTopOffset,
-            left:
-                pathModels[pathModelIndex].center.dx - gradientControlPointRad+drawingBoardLeftOffset,
+            top: pathModels[pathModelIndex].center.dy -
+                gradientControlPointRad +
+                drawingBoardTopOffset +
+                pathModels[pathModelIndex].offsetFromOrigin.dy,
+            left: pathModels[pathModelIndex].center.dx -
+                gradientControlPointRad +
+                drawingBoardLeftOffset +
+                pathModels[pathModelIndex].offsetFromOrigin.dx,
             child: CircleControlPoint(onPanUpdate: (DragUpdateDetails d) {
-              pathModels[0].center = Offset(
+              pathModels[pathModelIndex].center = Offset(
                   pathModels[pathModelIndex].center.dx + d.delta.dx,
                   pathModels[pathModelIndex].center.dy + d.delta.dy);
               provider.updateUI();

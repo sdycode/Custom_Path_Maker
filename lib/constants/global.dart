@@ -16,7 +16,10 @@ double arcRadius = 50;
 Size paintBoxSize = const Size(0, 0);
 List<PathModel> pathModels = [
   PathModel.withCurvePoints(points,
-      paint: Paint()..color = Colors.primaries.first, pathName: "path0")
+      paint: Paint()..color = Colors.primaries.first, pathName: "path0",
+      
+      size: Size(drawingBoardW, drawingBoardH)
+      )
 ];
 int pathModelIndex = 0;
 List<CurvePoint> list = [];

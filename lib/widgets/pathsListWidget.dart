@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:custom_path_maker/constants/consts.dart';
 import 'package:custom_path_maker/constants/global.dart';
+import 'package:custom_path_maker/functions/resetColorStopPositiontoLast.dart';
 import 'package:custom_path_maker/models/PathModel.dart';
 import 'package:custom_path_maker/providers/edit_option_provider.dart';
 import 'package:custom_path_maker/providers/path_screen_provider.dart';
@@ -60,13 +61,19 @@ class LayersListWidget extends StatelessWidget {
                                 PathModel newpathModel =
                                     PathModel.copyWithoutPoints(
                                         pathModels.last);
+                                newpathModel = getCopiedPathModel(newpathModel);
                                 newpathModel.pathNo = newpathModel.pathNo + 1;
+
                                 newpathModel.pathName =
                                     "Path${newpathModel.pathNo}";
                                 newpathModel.points.clear();
+
                                 newpathModel.hexColorString = hexColors[
                                     pathModels.length % hexColors.length];
-                                log("hexx ${newpathModel.hexColorString}");
+
+                                resetColorStopPositiontoLastForGivenPathModel(
+                                    newpathModel);
+                                setSizeInPathModel(newpathModel);
                                 pathModels.add(newpathModel);
 
                                 showHidePaths.add(true);
@@ -166,21 +173,21 @@ class LayersListWidget extends StatelessWidget {
                                               color: Colors.white,
                                             )),
                                       ),
-                                      Container(
-                                        width: layersListWidgetW * 0.12,
-                                        // color: Colors.purple,
-                                        child: IconButton(
-                                            iconSize: 20,
-                                            padding: EdgeInsets.zero,
-                                            onPressed: () {
-                                              p.updateUI();
-                                              editProvider.updateUI();
-                                            },
-                                            icon: const Icon(
-                                              Icons.more_vert,
-                                              color: Colors.white,
-                                            )),
-                                      )
+                                      // Container(
+                                      //   width: layersListWidgetW * 0.12,
+                                      //   // color: Colors.purple,
+                                      //   child: IconButton(
+                                      //       iconSize: 20,
+                                      //       padding: EdgeInsets.zero,
+                                      //       onPressed: () {
+                                      //         p.updateUI();
+                                      //         editProvider.updateUI();
+                                      //       },
+                                      //       icon: const Icon(
+                                      //         Icons.more_vert,
+                                      //         color: Colors.white,
+                                      //       )),
+                                      // )
                                     ],
                                   ),
                                 );
@@ -193,4 +200,14 @@ class LayersListWidget extends StatelessWidget {
           ),
         ));
   }
+}
+
+PathModel getCopiedPathModel(PathModel pModel) {
+  pModel.center = Offset(pModel.center.dx, pModel.center.dy);
+  pModel.focalCenter = Offset(pModel.focalCenter.dx, pModel.focalCenter.dy);
+  pModel.linearFrom = Offset(pModel.linearFrom.dx, pModel.linearFrom.dy);
+  pModel.linearTo = Offset(pModel.linearTo.dx, pModel.linearTo.dy);
+  pModel.offsetFromOrigin =
+      Offset(pModel.offsetFromOrigin.dx, pModel.offsetFromOrigin.dy);
+  return pModel;
 }

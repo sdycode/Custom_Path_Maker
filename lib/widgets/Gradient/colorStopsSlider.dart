@@ -20,7 +20,7 @@ class ColorStopSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double actualW = tw * sliderActualWidthFactor;
+    
     double barH = th * 0.8;
     PathModel pathModel = pathModels[pathModelIndex];
     GradProvider gradProvider = Provider.of(context, listen: true);

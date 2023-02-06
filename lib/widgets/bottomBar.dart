@@ -1,3 +1,4 @@
+import 'package:custom_path_maker/constants/colors.dart';
 import 'package:custom_path_maker/constants/consts.dart';
 import 'package:custom_path_maker/providers/path_screen_provider.dart';
 import 'package:custom_path_maker/widgets/radius_slider.dart';
@@ -17,30 +18,30 @@ class BottomBar extends StatelessWidget {
     return Container(
         width: w,
         height: bottombarH,
-        color: Colors.amber.shade200,
+        color: bottomBarColor,
         child: Row(
           children: [
-    
-              Container(
-            margin: EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                border: isZoomPanEnabled ? Border.all(color: Colors.blue) : null,
-                color:
-                    Color.fromARGB(isZoomPanEnabled ? 150 : 0, 156, 206, 247)),
-            child: InkWell(
-              onTap: () {
-                   isZoomPanEnabled = !isZoomPanEnabled;
-                  p.updateUI();
-              },
-              child: Image.asset("assets/icons/pan.png"),
-            ),
-          ),
             Container(
-              width: w*0.3,
+              margin: EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  border:
+                      isZoomPanEnabled ? Border.all(color: Colors.blue) : null,
+                  color: Color.fromARGB(
+                      isZoomPanEnabled ? 150 : 0, 156, 206, 247)),
+              child: InkWell(
+                onTap: () {
+                  isZoomPanEnabled = !isZoomPanEnabled;
+                  p.updateUI();
+                },
+                child: Image.asset("assets/icons/pan.png"),
+              ),
+            ),
+            Container(
+              width: w * 0.3,
               child: Slider(
-                activeColor:  Colors.red,
-                inactiveColor: Colors.red.shade200,
+                  activeColor: Colors.red,
+                  inactiveColor: Colors.red.shade200,
                   value: zoomValue,
                   min: 1,
                   max: 10,
@@ -48,7 +49,18 @@ class BottomBar extends StatelessWidget {
                     zoomValue = d;
                     p.updateUI();
                   }),
-            )
+            ),
+            TextButton(
+                onPressed: () {
+                  zoomValue = 1;
+                  zoomPanOffset = Offset.zero;
+                  p.updateUI();
+                  
+                },
+                child: Text(
+                  "Reset",
+                  style: TextStyle(color: Color.fromARGB(255, 25, 15, 79)),
+                ))
           ],
         )
         // const  RadiusSlider(),

@@ -8,3 +8,6 @@ const fillButtonBGColor = Color.fromARGB(255, 52, 4, 61);
 
 const radiusSliderColor = Color.fromARGB(255, 197, 64, 2);
 const focalRadiusSliderColor = Color.fromARGB(255, 249, 247, 123);
+
+const topBarColor = Colors.white;
+const bottomBarColor = Colors.white;

@@ -1,5 +1,6 @@
 // ignore_for_file: unrelated_type_equality_checks, non_constant_identifier_names, prefer_const_constructors
 
+import 'dart:developer';
 import 'dart:typed_data';
 import 'dart:io';
 
@@ -9,6 +10,7 @@ import 'package:custom_path_maker/constants/consts.dart';
 import 'package:custom_path_maker/constants/global.dart';
 import 'package:custom_path_maker/constants/gradient_constants.dart';
 import 'package:custom_path_maker/enum/enums.dart';
+import 'package:custom_path_maker/functions/resetColorStopPositiontoLast.dart';
 import 'package:custom_path_maker/functions/setCurvePointJustAfterAdded.dart';
 import 'package:custom_path_maker/models/curve_point.dart';
 import 'package:custom_path_maker/providers/path_screen_provider.dart';
@@ -18,6 +20,7 @@ import 'package:custom_path_maker/widgets/Gradient/gradRadiusSlider.dart';
 import 'package:custom_path_maker/widgets/Gradient/gradSweepRadiusSlider.dart';
 import 'package:custom_path_maker/widgets/Gradient/gradControlPoints.dart';
 import 'package:custom_path_maker/widgets/bottomBar.dart';
+import 'package:custom_path_maker/widgets/curveiconsinrow.dart';
 import 'package:custom_path_maker/widgets/editOptions_widget.dart';
 import 'package:custom_path_maker/Painter/painter_widget.dart';
 import 'package:custom_path_maker/widgets/pathsListWidget.dart';
@@ -56,6 +59,10 @@ class _PathDrawingScreenState extends State<PathDrawingScreen> {
   void initState() {
     // TODO: implement initState
     loadBackgroundImage();
+    if (pathModels.isNotEmpty) {
+      resetColorStopPositiontoLastForGivenPathModel(pathModels.first);
+    }
+
     super.initState();
   }
 
@@ -65,15 +72,8 @@ class _PathDrawingScreenState extends State<PathDrawingScreen> {
 
     const fontarm = "Arapey-Regular";
 
-    ///Package name
-
     PathScreenProvider p = Provider.of<PathScreenProvider>(context);
-    // log("hei $h : ${MediaQuery.of(context).size.height} / points ${points.length}");
-    // log("gradd  $isGradient / ${pathModels[pathModelIndex].gradientType.name}");
-//     isGradient
-// pathModels[pathModelIndex]
-//                                             .gradientType
-//                                             .name ==
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: Container(
@@ -81,7 +81,9 @@ class _PathDrawingScreenState extends State<PathDrawingScreen> {
           height: double.infinity,
           child: Column(
             children: [
-              const TopBar(),
+              TopBar(),
+              // curvePointOptions(context),
+
               Container(
                 width: w,
                 height: mainScreenH,
@@ -125,50 +127,54 @@ class _PathDrawingScreenState extends State<PathDrawingScreen> {
                                   child: ClipPath(
                                     clipBehavior: Clip.antiAlias,
                                     clipper: ClipperPathWidget(pathModelIndex),
-                                    child: GestureDetector(
-                                      onPanUpdate: (d) {
-                                        translatePoints(
-                                            pathModelIndex, d.delta);
-                                        p.updateUI();
-                                      },
-                                      child: Container(
-                                          height: mainScreenH,
-                                          width: mainScreenW,
-                                          decoration: BoxDecoration(
-                                              border: null,
-                                              //  Border.all(width: 2),
-                                              color: Colors.grey.shade100
-                                                  .withAlpha(0))),
+                                    child: MouseRegion(
+                                      cursor: SystemMouseCursors.move,
+                                      child: GestureDetector(
+                                        onPanUpdate: (d) {
+                                          translatePoints(
+                                              pathModelIndex, d.delta);
+                                          p.updateUI();
+                                        },
+                                        child: Container(
+                                            height: mainScreenH,
+                                            width: mainScreenW,
+                                            decoration: BoxDecoration(
+                                                border: null,
+                                                //  Border.all(width: 2),
+                                                color: Colors.grey.shade100
+                                                    .withAlpha(0))),
+                                      ),
                                     ),
                                   ),
-                                )
+                                ),
+                              if (!isGradient &&
+                                  pathModels[pathModelIndex]
+                                          .gradientType
+                                          .name
+                                          .toString() ==
+                                      GradientType.radial.name.toString())
+                                RadialGradControlPoints(),
+                              if (!isGradient &&
+                                  pathModels[pathModelIndex]
+                                          .gradientType
+                                          .name
+                                          .toString() ==
+                                      GradientType.linear.name.toString())
+                                LinearGradControlPoints(),
+                              if (!isGradient &&
+                                  pathModels[pathModelIndex]
+                                          .gradientType
+                                          .name
+                                          .toString() ==
+                                      GradientType.sweep.name.toString())
+                                SweepGradControlPoint(),
                             ],
                           ),
                         ),
                       ),
 
-                      if (!isGradient &&
-                          pathModels[pathModelIndex]
-                                  .gradientType
-                                  .name
-                                  .toString() ==
-                              GradientType.linear.name.toString())
-                        LinearGradControlPoints(),
-                      if (!isGradient &&
-                          pathModels[pathModelIndex]
-                                  .gradientType
-                                  .name
-                                  .toString() ==
-                              GradientType.radial.name.toString())
-                        RadialGradControlPoints(),
-                      if (!isGradient &&
-                          pathModels[pathModelIndex]
-                                  .gradientType
-                                  .name
-                                  .toString() ==
-                              GradientType.sweep.name.toString())
-                        SweepGradControlPoint(),
-
+                      if (showLayersList) LayersListWidget(),
+                      const EditOptions_widget(),
                       if (!isGradient &&
                           pathModels[pathModelIndex]
                                   .gradientType
@@ -176,7 +182,6 @@ class _PathDrawingScreenState extends State<PathDrawingScreen> {
                                   .toString() ==
                               GradientType.radial.name.toString())
                         GradRadiusSlider(),
-
                       if (!isGradient &&
                           pathModels[pathModelIndex]
                                   .gradientType
@@ -184,7 +189,6 @@ class _PathDrawingScreenState extends State<PathDrawingScreen> {
                                   .toString() ==
                               GradientType.sweep.name.toString())
                         GradSweepRadiusSlider(),
-
                       if (!isGradient &&
                           pathModels[pathModelIndex]
                                   .gradientType
@@ -197,36 +201,6 @@ class _PathDrawingScreenState extends State<PathDrawingScreen> {
                               th: gradColorSliderHeight,
                               tw: w - editOptionW,
                             )),
-                      if (showLayersList) LayersListWidget(),
-                      const EditOptions_widget(),
-
-                      // if (moveShapeWidget)
-                      //   Positioned(
-                      //     left:
-                      //         pathModels[pathModelIndex].offsetFromOrigin.dx +
-                      //             drawingBoardLeftOffset,
-                      //     top:
-                      //         pathModels[pathModelIndex].offsetFromOrigin.dy +
-                      //             drawingBoardTopOffset,
-                      //     child: ClipPath(
-                      //       clipBehavior: Clip.antiAlias,
-                      //       clipper: ClipperPathWidget(pathModelIndex),
-                      //       child: GestureDetector(
-                      //         onPanUpdate: (d) {
-                      //           translatePoints(pathModelIndex, d.delta);
-                      //           p.updateUI();
-                      //         },
-                      //         child: Container(
-                      //             height: mainScreenH,
-                      //             width: mainScreenW,
-                      //             decoration: BoxDecoration(
-                      //                 border: null,
-                      //                 //  Border.all(width: 2),
-                      //                 color:
-                      //                     Colors.grey.shade100.withAlpha(0))),
-                      //       ),
-                      //     ),
-                      //   )
                     ]),
               ),
               const BottomBar()

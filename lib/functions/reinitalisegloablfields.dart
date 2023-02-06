@@ -11,6 +11,8 @@ void reInitiaiseGlobalFields(BuildContext context) {
   mainScreenH = h - topbarH - bottombarH;
   mainScreenW = w - editOptionW;
   layersListWidgetH = (mainScreenH - 200).abs();
+  editOptionH = h - topbarH - bottombarH;
+  actualW = mainScreenW * sliderActualWidthFactor;
 }
 
 void reInitiaiseGlobalFieldsOfGradientSection(BuildContext context) {
